@@ -7,6 +7,10 @@ import { IntegrationProvider } from "@/contexts/IntegrationContext";
 import AppSidebar from "@/components/layout/AppSidebar";
 import AppHeader from "@/components/layout/AppHeader";
 import Index from "./pages/Index";
+import Analytics from "./pages/Analytics";
+import Activity from "./pages/Activity";
+import Chat from "./pages/Chat";
+import Nutrition from "./pages/Nutrition";
 import Integrations from "./pages/Integrations";
 import NotFound from "./pages/NotFound";
 
@@ -26,6 +30,10 @@ const App = () => (
               <main className="flex-1 px-4 md:px-8 pb-6">
                 <Routes>
                   <Route path="/" element={<Index />} />
+                  <Route path="/analytics" element={<Analytics />} />
+                  <Route path="/activity" element={<Activity />} />
+                  <Route path="/chat" element={<Chat />} />
+                  <Route path="/nutrition" element={<Nutrition />} />
                   <Route path="/integrations" element={<Integrations />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
