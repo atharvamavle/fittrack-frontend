@@ -7,6 +7,10 @@ import { IntegrationProvider } from "@/contexts/IntegrationContext";
 import AppSidebar from "@/components/layout/AppSidebar";
 import AppHeader from "@/components/layout/AppHeader";
 import Index from "./pages/Index";
+import Analytics from "./pages/Analytics";
+import Activity from "./pages/Activity";
+import Chat from "./pages/Chat";
+import Nutrition from "./pages/Nutrition";
 import Integrations from "./pages/Integrations";
 import NotFound from "./pages/NotFound";
 
