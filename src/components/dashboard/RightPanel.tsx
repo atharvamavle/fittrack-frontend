@@ -1,4 +1,4 @@
-import { MoreHorizontal, Running } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 
 const stats = [
   { label: "Weight", value: "72", unit: "kg" },
