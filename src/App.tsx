@@ -30,6 +30,10 @@ const App = () => (
               <main className="flex-1 px-4 md:px-8 pb-6">
                 <Routes>
                   <Route path="/" element={<Index />} />
+                  <Route path="/analytics" element={<Analytics />} />
+                  <Route path="/activity" element={<Activity />} />
+                  <Route path="/chat" element={<Chat />} />
+                  <Route path="/nutrition" element={<Nutrition />} />
                   <Route path="/integrations" element={<Integrations />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
