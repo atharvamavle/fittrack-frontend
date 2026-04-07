@@ -1,16 +1,31 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import StatCards from "@/components/dashboard/StatCards";
+import ActivityChart from "@/components/dashboard/ActivityChart";
+import ProgressChart from "@/components/dashboard/ProgressChart";
+import TrainerCards from "@/components/dashboard/TrainerCards";
+import DietMenu from "@/components/dashboard/DietMenu";
+import RightPanel from "@/components/dashboard/RightPanel";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
+    <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-6">
+      {/* Main content */}
+      <div className="space-y-6">
+        <StatCards />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <ActivityChart />
+          <ProgressChart />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <TrainerCards />
+          <DietMenu />
+        </div>
+      </div>
+      {/* Right panel */}
+      <div className="hidden xl:block">
+        <RightPanel />
+      </div>
     </div>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
