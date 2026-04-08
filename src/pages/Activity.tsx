@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useEffect } from "react";
+import { api } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -52,7 +54,8 @@ const workoutTypes: WorkoutType[] = ["Running", "Cycling", "Swimming", "Stretchi
 const sources: Source[] = ["Alexa", "Watch", "Manual"];
 
 const Activity = () => {
-  const [entries, setEntries] = useState<Entry[]>(mockData);
+  const [entries, setEntries] = useState<Entry[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<string>("all");
   const [filterSource, setFilterSource] = useState<string>("all");
   const [open, setOpen] = useState(false);
@@ -61,15 +64,41 @@ const Activity = () => {
   const [newIntensity, setNewIntensity] = useState([3]);
   const [newNotes, setNewNotes] = useState("");
 
+  useEffect(() => {
+    api.getWorkouts().then((data) => {
+      // Map backend fields to frontend shape
+      const mapped = data.map((w: any) => ({
+        id: w.id,
+        date: w.performed_at?.slice(0, 10) ?? "",
+        type: w.workout_type as WorkoutType,
+        duration: w.duration_minutes,
+        calories: Math.round(w.calories_burned || 0),
+        intensity: w.intensity,
+        source: w.source as Source,
+      }));
+      setEntries(mapped);
+    }).finally(() => setLoading(false));
+  }, []);
+
   const filtered = entries.filter(
     (e) => (filterType === "all" || e.type === filterType) && (filterSource === "all" || e.source === filterSource)
   );
 
-  const addWorkout = () => {
+  const addWorkout = async () => {
+    const result = await api.logWorkout({
+      workout_type: newType.toLowerCase(),
+      duration_minutes: parseInt(newDuration) || 30,
+      intensity: newIntensity[0],
+      source: "manual",
+    });
     setEntries([{
-      id: Date.now(), date: new Date().toISOString().slice(0, 10), type: newType,
-      duration: parseInt(newDuration) || 30, calories: Math.floor(Math.random() * 300 + 100),
-      intensity: newIntensity[0], source: "Manual",
+      id: result.id,
+      date: new Date().toISOString().slice(0, 10),
+      type: newType,
+      duration: parseInt(newDuration) || 30,
+      calories: Math.round(result.calories_burned || 0),
+      intensity: newIntensity[0],
+      source: "Manual",
     }, ...entries]);
     setOpen(false);
     setNewNotes("");

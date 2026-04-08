@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Backend lives in its own repo (fittrack-backend)
+fittrack-backend/

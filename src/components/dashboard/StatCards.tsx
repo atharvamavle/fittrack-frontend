@@ -1,8 +1,20 @@
 import { Footprints, Droplets, Flame, Heart } from "lucide-react";
 import { useIntegration } from "@/contexts/IntegrationContext";
+import { useEffect, useState } from "react";
+import { api } from "@/lib/api";
 
 const StatCards = () => {
   const { watchConnected } = useIntegration();
+
+  const [summary, setSummary] = useState<any>({
+    total_calories_burned: 0,
+    total_calories_eaten: 0,
+    net_calories: 0,
+  });
+
+  useEffect(() => {
+    api.getSummary().then(setSummary).catch(console.error);
+  }, []);
 
   const cards = [
     {
@@ -24,22 +36,22 @@ const StatCards = () => {
       watchTag: false,
     },
     {
-      label: "Calories",
-      value: "1,847",
-      sub: "kcal burned",
+      label: "Calories Burned",
+      value: (summary?.total_calories_burned ?? 0).toLocaleString(),
+      sub: "kcal burned today",
       icon: Flame,
       gradient: "stat-card-pink",
-      progress: 65,
+      progress: Math.min((summary.total_calories_burned / 2400) * 100, 100),
       watchTag: true,
     },
     {
-      label: "Heart Rate",
-      value: "72",
-      sub: "BPM avg",
+      label: "Calories Eaten",
+      value: (summary?.total_calories_eaten ?? 0).toLocaleString(),
+      sub: "kcal eaten today",
       icon: Heart,
       gradient: "stat-card-purple",
-      progress: 72,
-      watchTag: true,
+      progress: Math.min((summary.total_calories_eaten / 2400) * 100, 100),
+      watchTag: false,
     },
   ];
 
