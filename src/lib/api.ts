@@ -17,7 +17,10 @@ export const api = {
     const res = await fetch(`${BASE}/meals`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        ...data,
+        date: new Date().toLocaleDateString("en-CA", { timeZone: "Australia/Melbourne" }),
+      }),
     });
     return res.json();
   },
@@ -42,7 +45,10 @@ export const api = {
     const res = await fetch(`${BASE}/workouts`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        ...data,
+        date: new Date().toLocaleDateString("en-CA", { timeZone: "Australia/Melbourne" }),
+      }),
     });
     return res.json();
   },
