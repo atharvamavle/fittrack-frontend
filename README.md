@@ -5,6 +5,100 @@ FitTrack Frontend is the user-facing web application for the FitTrack project. I
 ## Project Planning
 Project planning and architecture for the FitTrack system are maintained in an Obsidian vault. The vault includes dedicated notes for the backend API, Alexa integration, frontend UI, and overall roadmap, with heavy cross-linking between them. This README summarizes the backend-specific parts of that Obsidian plan so the repository stays aligned with the broader project design.
 
+## Frontend Architecture
+flowchart LR
+    u1[User Browser] --> u2[FitTrack Frontend SPA]
+
+    subgraph FE[Frontend Layer]
+        f1[Pages Router]
+        f2[Dashboard View]
+        f3[Workout History View]
+        f4[Meal History View]
+        f5[Summary Cards]
+        f6[Charts & Trend Widgets]
+        f7[Filters & Date Selector]
+        f8[State Management]
+        f9[API Client]
+        f10[Loading / Empty / Error States]
+    end
+
+    u2 --> f1
+    f1 --> f2
+    f1 --> f3
+    f1 --> f4
+    f2 --> f5
+    f2 --> f6
+    f2 --> f7
+    f2 --> f10
+    f3 --> f7
+    f3 --> f10
+    f4 --> f7
+    f4 --> f10
+    f2 --> f8
+    f3 --> f8
+    f4 --> f8
+    f8 --> f9
+
+    subgraph API[Backend API Layer]
+        b1[GET /summary]
+        b2[GET /workouts]
+        b3[GET /meals]
+        b4[POST /workouts]
+        b5[POST /meals]
+    end
+
+    f9 --> b1
+    f9 --> b2
+    f9 --> b3
+    f9 --> b4
+    f9 --> b5
+
+    subgraph BE[Backend Services]
+        s1[Summary Aggregation Logic]
+        s2[Workout Service]
+        s3[Meal Service]
+        s4[Validation & Source Mapping]
+        s5[Timezone / Date Handling]
+    end
+
+    b1 --> s1
+    b2 --> s2
+    b3 --> s3
+    b4 --> s2
+    b5 --> s3
+    s1 --> s5
+    s2 --> s4
+    s2 --> s5
+    s3 --> s4
+    s3 --> s5
+
+    subgraph DB[Persistence Layer]
+        d1[(Workouts Table)]
+        d2[(Meals Table)]
+        d3[(Users Table)]
+    end
+
+    s1 --> d1
+    s1 --> d2
+    s1 --> d3
+    s2 --> d1
+    s2 --> d3
+    s3 --> d2
+    s3 --> d3
+
+    subgraph EXT[External Inputs]
+        e1[Alexa Skill]
+        e2[AWS Lambda]
+        e3[Future Nutrition API]
+        e4[Future Health Connect / Watch Sync]
+    end
+
+    e1 --> e2 --> b4
+    e2 --> b5
+    e3 --> s3
+    e4 --> s2
+
+
 ## Overview
 
 The frontend is part of a larger system where Alexa logs workouts and meals through AWS Lambda, the backend stores and summarizes the data, and the frontend presents that information in a usable dashboard.[cite:95]
