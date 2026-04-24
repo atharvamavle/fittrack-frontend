@@ -2,6 +2,9 @@
 
 FitTrack Frontend is the user-facing web application for the FitTrack project. It provides a dashboard for viewing workouts, meals, and daily calorie summaries while consuming the FitTrack backend API hosted on Render.[cite:95][cite:96]
 
+## Project Planning
+Project planning and architecture for the FitTrack system are maintained in an Obsidian vault. The vault includes dedicated notes for the backend API, Alexa integration, frontend UI, and overall roadmap, with heavy cross-linking between them. This README summarizes the backend-specific parts of that Obsidian plan so the repository stays aligned with the broader project design.
+
 ## Overview
 
 The frontend is part of a larger system where Alexa logs workouts and meals through AWS Lambda, the backend stores and summarizes the data, and the frontend presents that information in a usable dashboard.[cite:95]
@@ -135,7 +138,6 @@ Short-term priorities from the project plan that directly affect the frontend:[c
 - Add basic filters and date selection.[cite:95]
 
 ## Roadmap Alignment
-Project planning and architecture for the FitTrack system are maintained in an Obsidian vault. The vault includes dedicated notes for the backend API, Alexa integration, frontend UI, and overall roadmap, with heavy cross-linking between them. This README summarizes the backend-specific parts of that Obsidian plan so the repository stays aligned with the broader project design.
 
 The frontend should evolve in this order based on the current project priorities:[cite:95]
 
