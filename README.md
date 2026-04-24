@@ -6,6 +6,8 @@ FitTrack Frontend is the user-facing web application for the FitTrack project. I
 Project planning and architecture for the FitTrack system are maintained in an Obsidian vault. The vault includes dedicated notes for the backend API, Alexa integration, frontend UI, and overall roadmap, with heavy cross-linking between them. This README summarizes the backend-specific parts of that Obsidian plan so the repository stays aligned with the broader project design.
 
 ## Frontend Architecture
+
+```mermaid
 flowchart LR
     u1[User Browser] --> u2[FitTrack Frontend SPA]
 
@@ -97,7 +99,20 @@ flowchart LR
     e2 --> b5
     e3 --> s3
     e4 --> s2
+```
 
+## How the Frontend Fits Into the System
+
+The frontend is the visual layer of FitTrack. It is responsible for turning backend workout, meal, and summary data into a usable dashboard, history views, and trend components. While Alexa is the voice input layer, the frontend is the place where the user can review, validate, and analyze the logged data.
+
+The expected data flow is:
+
+1. The user opens the frontend in the browser.
+2. The frontend router loads the dashboard, workouts, or meals view.
+3. Page-level components call the API client.
+4. The API client requests summary, workout, and meal data from the backend.
+5. The backend aggregates data from the database and returns structured JSON.
+6. The frontend renders summary cards, filters, charts, and history tables.
 
 ## Overview
 
