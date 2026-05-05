@@ -255,6 +255,4 @@ The frontend should evolve in this order based on the current project priorities
 3. Add meal nutrition and macro summaries once nutrition API integration is complete.[cite:95]
 4. Add authentication and user-specific dashboards after account linking and user identity are implemented.[cite:95]
 
-## Contribution Notes
 
-Before building extra UI complexity, stabilize the data model first. A polished dashboard built on wrong dates, wrong sources, or fake meal calories is wasted effort.[cite:95]
