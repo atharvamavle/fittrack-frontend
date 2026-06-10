@@ -3,6 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { LogOut, User, Activity, Target, Ruler } from "lucide-react";
+import { goalLabels, activityLabels } from "@/lib/fitness";
 
 function cmToFeetInches(cm: number): string {
   const inches = cm / 2.54;
@@ -10,20 +11,6 @@ function cmToFeetInches(cm: number): string {
   const rem    = Math.round(inches % 12);
   return `${feet}'${rem}" (${cm} cm)`;
 }
-
-const goalLabels: Record<string, string> = {
-  lose_weight:    "Lose Weight",
-  build_muscle:   "Build Muscle",
-  stay_fit:       "Stay Fit",
-  improve_cardio: "Improve Cardio",
-};
-
-const activityLabels: Record<string, string> = {
-  sedentary: "Sedentary (little or no exercise)",
-  light:     "Lightly active (1–3 days/week)",
-  moderate:  "Moderately active (3–5 days/week)",
-  very:      "Very active (6–7 days/week)",
-};
 
 const Settings = () => {
   const { user, signOut } = useAuth();
@@ -44,7 +31,16 @@ const Settings = () => {
         </h2>
         <div className="space-y-2 text-sm">
           <Row label="Email"   value={user?.email ?? "—"} />
-          <Row label="User ID" value={user?.id ? `${user.id.slice(0, 16)}…` : "—"} mono />
+          <div className="flex justify-between items-start gap-2">
+            <span className="text-muted-foreground shrink-0">User ID</span>
+            <span
+              className="font-mono text-xs text-foreground break-all text-right cursor-pointer hover:text-primary"
+              title="Click to copy"
+              onClick={() => user?.id && navigator.clipboard.writeText(user.id)}
+            >
+              {user?.id ?? "—"}
+            </span>
+          </div>
         </div>
       </div>
 

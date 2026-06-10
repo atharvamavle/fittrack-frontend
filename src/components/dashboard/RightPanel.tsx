@@ -1,41 +1,10 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-
-function cmToFeetInches(cm: number): string {
-  const totalInches = cm / 2.54;
-  const feet = Math.floor(totalInches / 12);
-  const inches = Math.round(totalInches % 12);
-  return `${feet}'${inches}"`;
-}
+import { melbourneToday, monthStart, cmToFeetInches, goalLabels, workoutTargets } from "@/lib/fitness";
 
 function getInitials(name: string): string {
   return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 }
-
-function melbourneToday(): string {
-  return new Date().toLocaleDateString("en-CA", { timeZone: "Australia/Melbourne" });
-}
-
-function monthStart(): string {
-  const d = new Date();
-  return new Date(d.getFullYear(), d.getMonth(), 1)
-    .toLocaleDateString("en-CA", { timeZone: "Australia/Melbourne" });
-}
-
-const goalLabels: Record<string, string> = {
-  lose_weight:    "Lose Weight",
-  build_muscle:   "Build Muscle",
-  stay_fit:       "Stay Fit",
-  improve_cardio: "Improve Cardio",
-};
-
-// Target workouts per month by activity level
-const workoutTargets: Record<string, number> = {
-  sedentary: 8,
-  light:     12,
-  moderate:  16,
-  very:      24,
-};
 
 const RightPanel = () => {
   const [profile,  setProfile]  = useState<any>(null);

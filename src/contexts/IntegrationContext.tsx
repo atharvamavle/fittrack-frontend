@@ -20,10 +20,10 @@ export const useIntegration = () => {
 };
 
 export const IntegrationProvider = ({ children }: { children: ReactNode }) => {
-  const [alexaConnected, setAlexaConnected] = useState(false);
-  const [watchConnected, setWatchConnected] = useState(false);
-  const [alexaLastSync, setAlexaLastSync] = useState<string | null>(null);
-  const [watchLastSync, setWatchLastSync] = useState<string | null>(null);
+  const [alexaConnected, setAlexaConnected] = useState(() => localStorage.getItem("alexa_connected") === "true");
+  const [watchConnected, setWatchConnected] = useState(() => localStorage.getItem("watch_connected") === "true");
+  const [alexaLastSync, setAlexaLastSync] = useState<string | null>(() => localStorage.getItem("alexa_last_sync"));
+  const [watchLastSync, setWatchLastSync] = useState<string | null>(() => localStorage.getItem("watch_last_sync"));
 
   return (
     <IntegrationContext.Provider
@@ -32,10 +32,32 @@ export const IntegrationProvider = ({ children }: { children: ReactNode }) => {
         watchConnected,
         alexaLastSync,
         watchLastSync,
-        connectAlexa: () => { setAlexaConnected(true); setAlexaLastSync("Just now"); },
-        disconnectAlexa: () => { setAlexaConnected(false); setAlexaLastSync(null); },
-        connectWatch: () => { setWatchConnected(true); setWatchLastSync("Just now"); },
-        disconnectWatch: () => { setWatchConnected(false); setWatchLastSync(null); },
+        connectAlexa: () => {
+          const now = new Date().toLocaleString("en-AU", { timeZone: "Australia/Melbourne" });
+          setAlexaConnected(true);
+          setAlexaLastSync(now);
+          localStorage.setItem("alexa_connected", "true");
+          localStorage.setItem("alexa_last_sync", now);
+        },
+        disconnectAlexa: () => {
+          setAlexaConnected(false);
+          setAlexaLastSync(null);
+          localStorage.removeItem("alexa_connected");
+          localStorage.removeItem("alexa_last_sync");
+        },
+        connectWatch: () => {
+          const now = new Date().toLocaleString("en-AU", { timeZone: "Australia/Melbourne" });
+          setWatchConnected(true);
+          setWatchLastSync(now);
+          localStorage.setItem("watch_connected", "true");
+          localStorage.setItem("watch_last_sync", now);
+        },
+        disconnectWatch: () => {
+          setWatchConnected(false);
+          setWatchLastSync(null);
+          localStorage.removeItem("watch_connected");
+          localStorage.removeItem("watch_last_sync");
+        },
       }}
     >
       {children}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { melbourneToday, lastNDays, shortDay, monthStart } from "@/lib/fitness";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar, PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { Dumbbell, Flame, Footprints, Heart } from "lucide-react";
 import { api } from "@/lib/api";
@@ -13,28 +14,6 @@ const COLORS = [
   "hsl(200,100%,50%)",
 ];
 
-function melbourneToday(): string {
-  return new Date().toLocaleDateString("en-CA", { timeZone: "Australia/Melbourne" });
-}
-
-function lastNDays(n: number): string[] {
-  return Array.from({ length: n }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (n - 1 - i));
-    return d.toLocaleDateString("en-CA", { timeZone: "Australia/Melbourne" });
-  });
-}
-
-function shortDay(iso: string): string {
-  const [y, m, d] = iso.split("-").map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString("en-AU", { weekday: "short" });
-}
-
-function monthStart(): string {
-  const d = new Date();
-  return new Date(d.getFullYear(), d.getMonth(), 1)
-    .toLocaleDateString("en-CA", { timeZone: "Australia/Melbourne" });
-}
 
 const chartConfig = {
   calories: { label: "Calories", color: "hsl(168,100%,37%)" },

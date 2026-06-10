@@ -6,7 +6,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dumbbell, Bike, Waves, StretchHorizontal, Footprints, Plus, Loader2 } from "lucide-react";
 
@@ -61,7 +60,6 @@ const Activity = () => {
   const [newType,      setNewType]      = useState<WorkoutType>("running");
   const [newDuration,  setNewDuration]  = useState("30");
   const [newIntensity, setNewIntensity] = useState([3]);
-  const [newNotes,     setNewNotes]     = useState("");
 
   const loadWorkouts = () => {
     setLoading(true);
@@ -113,7 +111,6 @@ const Activity = () => {
       };
       setEntries([newEntry, ...entries]);
       setOpen(false);
-      setNewNotes("");
     } catch (err) {
       console.error("Failed to log workout:", err);
     } finally {
@@ -223,10 +220,6 @@ const Activity = () => {
             <div>
               <Label>Intensity: {newIntensity[0]}/5</Label>
               <Slider min={1} max={5} step={1} value={newIntensity} onValueChange={setNewIntensity} className="mt-2" />
-            </div>
-            <div>
-              <Label>Notes (optional)</Label>
-              <Textarea value={newNotes} onChange={(e) => setNewNotes(e.target.value)} placeholder="Optional notes..." />
             </div>
           </div>
           <DialogFooter>

@@ -34,10 +34,7 @@ async function post(path: string, body: object) {
   return res.json();
 }
 
-// Helper: today's date in Melbourne timezone (AEST/AEDT)
-function melbourneToday(): string {
-  return new Date().toLocaleDateString("en-CA", { timeZone: "Australia/Melbourne" });
-}
+import { melbourneToday } from "@/lib/fitness";
 
 export const api = {
   // ── Meals ──────────────────────────────────────────────────────
