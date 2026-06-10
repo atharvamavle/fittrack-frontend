@@ -34,6 +34,15 @@ async function post(path: string, body: object) {
   return res.json();
 }
 
+async function del(path: string) {
+  const res = await fetch(`${BASE}${path}`, {
+    method: "DELETE",
+    headers: await authHeaders(),
+  });
+  if (!res.ok) throw new Error(`DELETE ${path} failed: ${res.status}`);
+  return res.json();
+}
+
 import { melbourneToday } from "@/lib/fitness";
 
 export const api = {
@@ -62,6 +71,8 @@ export const api = {
     intensity: number;
     source?: string;
   }) => post("/workouts", { ...data, date: melbourneToday() }),
+
+  deleteWorkout: (id: number) => del(`/workouts/${id}`),
 
   // ── Summary ─────────────────────────────────────────────────────
   getSummary: (date?: string) =>
