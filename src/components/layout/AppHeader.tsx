@@ -1,20 +1,32 @@
 import { Bell, Plus, Mic, Watch } from "lucide-react";
 import { useIntegration } from "@/contexts/IntegrationContext";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AlexaModal from "@/components/integrations/AlexaModal";
 import WatchModal from "@/components/integrations/WatchModal";
+import { api } from "@/lib/api";
+
+function getInitials(name: string): string {
+  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+}
 
 const AppHeader = () => {
   const { alexaConnected, watchConnected } = useIntegration();
   const [alexaOpen, setAlexaOpen] = useState(false);
   const [watchOpen, setWatchOpen] = useState(false);
+  const [profile, setProfile] = useState<any>(null);
+
+  useEffect(() => {
+    api.getProfile().then(setProfile).catch(() => {});
+  }, []);
 
   return (
     <>
       <header className="flex items-center justify-between px-4 md:px-8 py-4">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-foreground">Good Morning, Welcome Back 👋</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-foreground">
+            Good {new Date().getHours() < 12 ? "Morning" : new Date().getHours() < 17 ? "Afternoon" : "Evening"}{profile?.name ? `, ${profile.name.split(" ")[0]}` : ""} 👋
+          </h1>
           <p className="text-sm text-muted-foreground">Here's your fitness overview for today</p>
         </div>
         <div className="flex items-center gap-3">
@@ -46,11 +58,11 @@ const AppHeader = () => {
           </button>
           <div className="hidden md:flex items-center gap-3 ml-2">
             <div className="text-right">
-              <p className="text-sm font-semibold text-foreground">Alex Johnson</p>
-              <p className="text-xs text-muted-foreground">New York, USA</p>
+              <p className="text-sm font-semibold text-foreground">{profile?.name || "—"}</p>
+              <p className="text-xs text-muted-foreground">Melbourne, AU</p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-purple overflow-hidden flex items-center justify-center text-primary-foreground font-bold text-sm">
-              AJ
+              {profile?.name ? getInitials(profile.name) : "…"}
             </div>
           </div>
         </div>

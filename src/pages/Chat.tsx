@@ -1,43 +1,58 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, Mic, Bot, User } from "lucide-react";
+import { Send, Bot, User, Loader2 } from "lucide-react";
+import { api } from "@/lib/api";
 
-interface Message { id: number; role: "user" | "assistant"; text: string; }
-
-const initial: Message[] = [
-  { id: 1, role: "assistant", text: "Hey! 👋 I'm your AI Fitness Assistant. Ask me anything about your workouts, nutrition, or goals." },
-  { id: 2, role: "user", text: "How many calories did I burn today?" },
-  { id: 3, role: "assistant", text: "Based on your activity log, you've burned approximately 487 kcal today across 2 workouts — a 35-min run and a 45-min yoga session. Keep it up! 🔥" },
-  { id: 4, role: "user", text: "What should I eat for dinner?" },
-  { id: 5, role: "assistant", text: "Since you've burned 487 kcal and eaten about 1,100 kcal so far, I'd recommend a protein-rich dinner — grilled salmon with steamed veggies would give you ~450 kcal and 34g protein. 🐟" },
-];
-
-const botReplies = [
-  "That's a great question! Based on your recent data, you're on track to hit your weekly goals. 💪",
-  "I'd recommend increasing your water intake — you're at 1.5L today, aim for 2.5L!",
-  "Your heart rate has been averaging 72 BPM, which is right in the healthy zone. 👍",
-  "Try adding a 15-minute stretching session before bed to improve recovery.",
-];
+interface Message {
+  id: number;
+  role: "user" | "assistant";
+  text: string;
+}
 
 const Chat = () => {
-  const [messages, setMessages] = useState<Message[]>(initial);
-  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: 1,
+      role: "assistant",
+      text: "Hey! 👋 I'm your AI Fitness Assistant. Ask me anything about your workouts, nutrition, or goals — I'll use your actual data to give you personalised advice.",
+    },
+  ]);
+  const [input,   setInput]   = useState("");
+  const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
-  const send = () => {
-    if (!input.trim()) return;
-    const userMsg: Message = { id: Date.now(), role: "user", text: input };
+  const send = async () => {
+    const text = input.trim();
+    if (!text || loading) return;
+
+    const userMsg: Message = { id: Date.now(), role: "user", text };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
-    setTimeout(() => {
-      setMessages((prev) => [...prev, {
-        id: Date.now() + 1, role: "assistant",
-        text: botReplies[Math.floor(Math.random() * botReplies.length)],
-      }]);
-    }, 800);
+    setLoading(true);
+
+    try {
+      const data = await api.sendMessage(text);
+      setMessages((prev) => [
+        ...prev,
+        { id: Date.now() + 1, role: "assistant", text: data.reply },
+      ]);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          role: "assistant",
+          text: "Sorry, I couldn't reach the server. Please try again.",
+        },
+      ]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -52,11 +67,13 @@ const Chat = () => {
                 <Bot className="w-4 h-4 text-muted-foreground" />
               </div>
             )}
-            <div className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm ${
-              m.role === "user"
-                ? "stat-card-teal text-white rounded-br-md"
-                : "bg-muted text-foreground rounded-bl-md"
-            }`}>
+            <div
+              className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm ${
+                m.role === "user"
+                  ? "stat-card-teal text-white rounded-br-md"
+                  : "bg-muted text-foreground rounded-bl-md"
+              }`}
+            >
               {m.text}
             </div>
             {m.role === "user" && (
@@ -66,21 +83,33 @@ const Chat = () => {
             )}
           </div>
         ))}
+
+        {loading && (
+          <div className="flex gap-3">
+            <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0">
+              <Bot className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3">
+              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+            </div>
+          </div>
+        )}
+
         <div ref={bottomRef} />
       </div>
 
       <div className="flex gap-2 pt-3 border-t border-border">
-        <Button variant="outline" size="icon" className="shrink-0" title="Voice input (coming soon)">
-          <Mic className="w-4 h-4" />
-        </Button>
         <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && send()}
-          placeholder="Ask me anything..."
+          placeholder="Ask me anything about your fitness..."
           className="flex-1"
+          disabled={loading}
         />
-        <Button onClick={send} size="icon" className="shrink-0"><Send className="w-4 h-4" /></Button>
+        <Button onClick={send} size="icon" className="shrink-0" disabled={loading || !input.trim()}>
+          <Send className="w-4 h-4" />
+        </Button>
       </div>
     </div>
   );
