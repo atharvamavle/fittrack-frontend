@@ -1,14 +1,16 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
+import { api } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface IntegrationState {
   alexaConnected: boolean;
+  alexaDevices: { id: number; linked_at: string }[];
+  alexaLoading: boolean;
+  refreshAlexa: () => Promise<void>;
+  disconnectAlexa: () => Promise<void>;
+  // Watch sync is not implemented yet — roadmap-only state.
   watchConnected: boolean;
-  alexaLastSync: string | null;
   watchLastSync: string | null;
-  connectAlexa: () => void;
-  disconnectAlexa: () => void;
-  connectWatch: () => void;
-  disconnectWatch: () => void;
 }
 
 const IntegrationContext = createContext<IntegrationState | null>(null);
@@ -20,44 +22,51 @@ export const useIntegration = () => {
 };
 
 export const IntegrationProvider = ({ children }: { children: ReactNode }) => {
-  const [alexaConnected, setAlexaConnected] = useState(() => localStorage.getItem("alexa_connected") === "true");
-  const [watchConnected, setWatchConnected] = useState(() => localStorage.getItem("watch_connected") === "true");
-  const [alexaLastSync, setAlexaLastSync] = useState<string | null>(() => localStorage.getItem("alexa_last_sync"));
-  const [watchLastSync, setWatchLastSync] = useState<string | null>(() => localStorage.getItem("watch_last_sync"));
+  const { user } = useAuth();
+  const [alexaConnected, setAlexaConnected] = useState(false);
+  const [alexaDevices, setAlexaDevices] = useState<{ id: number; linked_at: string }[]>([]);
+  const [alexaLoading, setAlexaLoading] = useState(false);
+
+  const refreshAlexa = useCallback(async () => {
+    if (!user) {
+      setAlexaConnected(false);
+      setAlexaDevices([]);
+      return;
+    }
+    setAlexaLoading(true);
+    try {
+      const status = await api.getAlexaLinkStatus();
+      setAlexaConnected(!!status.linked);
+      setAlexaDevices(status.devices ?? []);
+    } catch (err) {
+      console.error("Failed to load Alexa link status", err);
+    } finally {
+      setAlexaLoading(false);
+    }
+  }, [user]);
+
+  const disconnectAlexa = useCallback(async () => {
+    try {
+      await api.unlinkAlexa();
+    } finally {
+      await refreshAlexa();
+    }
+  }, [refreshAlexa]);
+
+  useEffect(() => {
+    refreshAlexa();
+  }, [refreshAlexa]);
 
   return (
     <IntegrationContext.Provider
       value={{
         alexaConnected,
-        watchConnected,
-        alexaLastSync,
-        watchLastSync,
-        connectAlexa: () => {
-          const now = new Date().toLocaleString("en-AU", { timeZone: "Australia/Melbourne" });
-          setAlexaConnected(true);
-          setAlexaLastSync(now);
-          localStorage.setItem("alexa_connected", "true");
-          localStorage.setItem("alexa_last_sync", now);
-        },
-        disconnectAlexa: () => {
-          setAlexaConnected(false);
-          setAlexaLastSync(null);
-          localStorage.removeItem("alexa_connected");
-          localStorage.removeItem("alexa_last_sync");
-        },
-        connectWatch: () => {
-          const now = new Date().toLocaleString("en-AU", { timeZone: "Australia/Melbourne" });
-          setWatchConnected(true);
-          setWatchLastSync(now);
-          localStorage.setItem("watch_connected", "true");
-          localStorage.setItem("watch_last_sync", now);
-        },
-        disconnectWatch: () => {
-          setWatchConnected(false);
-          setWatchLastSync(null);
-          localStorage.removeItem("watch_connected");
-          localStorage.removeItem("watch_last_sync");
-        },
+        alexaDevices,
+        alexaLoading,
+        refreshAlexa,
+        disconnectAlexa,
+        watchConnected: false,
+        watchLastSync: null,
       }}
     >
       {children}

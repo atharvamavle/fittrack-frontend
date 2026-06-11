@@ -2,17 +2,7 @@ import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from "recharts
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 
-function melbourneToday(): string {
-  return new Date().toLocaleDateString("en-CA", { timeZone: "Australia/Melbourne" });
-}
-
-function lastNDays(n: number): string[] {
-  return Array.from({ length: n }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (n - 1 - i));
-    return d.toLocaleDateString("en-CA", { timeZone: "Australia/Melbourne" });
-  });
-}
+import { localToday, lastNDays } from "@/lib/fitness";
 
 function shortDay(isoDate: string): string {
   // isoDate = "2026-06-10" — parse as local date to avoid UTC shift
@@ -27,7 +17,7 @@ const ActivityChart = () => {
     api.getWorkouts().then(setWorkouts).catch(console.error);
   }, []);
 
-  const today = melbourneToday();
+  const today = localToday();
   const days  = lastNDays(7);
 
   // Sum calories burned per day

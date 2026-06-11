@@ -1,5 +1,7 @@
-import { Mic, X, Volume2 } from "lucide-react";
+import { useState } from "react";
+import { Mic, X, Volume2, Loader2, RefreshCw } from "lucide-react";
 import { useIntegration } from "@/contexts/IntegrationContext";
+import { api } from "@/lib/api";
 
 interface Props {
   open: boolean;
@@ -7,22 +9,44 @@ interface Props {
 }
 
 const COMMANDS = [
-  { say: "Alexa, open fit track", result: "Opens FitTrack skill" },
-  { say: "I did chest and biceps", result: "Alexa asks for intensity" },
-  { say: "Medium", result: "Logs workout + tells you calories burned" },
-  { say: "I went for a run", result: "Logs running session" },
-  { say: "What's my summary", result: "Today's calories burned & eaten" },
-  { say: "I had chicken rice for lunch", result: "Logs a meal" },
+  { say: "Alexa, open fit track", result: "Opens the FitTrack skill" },
+  { say: "Link my account with code 123456", result: "Pairs this device with your account" },
+  { say: "I did chest and biceps", result: "Alexa asks duration & intensity, then logs each workout" },
+  { say: "I ate two chapatis with paneer curry and salad", result: "Splits into items, estimates calories & macros" },
+  { say: "What's my summary", result: "Reads today's workouts, meals, calories & protein" },
 ];
 
 const AlexaModal = ({ open, onClose }: Props) => {
-  const { alexaConnected, connectAlexa, disconnectAlexa, alexaLastSync } = useIntegration();
+  const { alexaConnected, alexaDevices, alexaLoading, disconnectAlexa, refreshAlexa } = useIntegration();
+  const [code, setCode] = useState<string | null>(null);
+  const [expiresIn, setExpiresIn] = useState<number>(10);
+  const [generating, setGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (!open) return null;
 
+  const generateCode = async () => {
+    setGenerating(true);
+    setError(null);
+    try {
+      const res = await api.getAlexaLinkCode();
+      setCode(res.code);
+      setExpiresIn(res.expires_in_minutes ?? 10);
+    } catch {
+      setError("Couldn't generate a code. Check your connection and try again.");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleUnlink = async () => {
+    await disconnectAlexa();
+    setCode(null);
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/30 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6 fade-in" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6 fade-in max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
 
         <div className="flex justify-between items-start mb-4">
           <div className="w-12 h-12 rounded-2xl bg-teal-light flex items-center justify-center">
@@ -35,11 +59,53 @@ const AlexaModal = ({ open, onClose }: Props) => {
 
         <h2 className="text-lg font-bold text-foreground mb-1">Amazon Alexa</h2>
         <div className="flex items-center gap-2 mb-4">
-          <span className={`w-2 h-2 rounded-full ${alexaConnected ? "bg-emerald-400" : "bg-destructive"}`} />
+          {alexaLoading ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" />
+          ) : (
+            <span className={`w-2 h-2 rounded-full ${alexaConnected ? "bg-emerald-400" : "bg-destructive"}`} />
+          )}
           <span className="text-sm text-muted-foreground">
-            {alexaConnected ? `Connected · Last used: ${alexaLastSync}` : "Not Connected"}
+            {alexaLoading
+              ? "Checking link status…"
+              : alexaConnected
+                ? `Linked · ${alexaDevices.length} device${alexaDevices.length !== 1 ? "s" : ""}`
+                : "Not linked"}
           </span>
+          <button onClick={refreshAlexa} title="Refresh status" className="ml-auto text-muted-foreground hover:text-foreground">
+            <RefreshCw className="w-4 h-4" />
+          </button>
         </div>
+
+        {!alexaConnected && (
+          <div className="space-y-3 mb-4">
+            <p className="text-sm text-muted-foreground">
+              Generate a one-time code, then say to your Alexa device:
+            </p>
+            <p className="text-sm font-medium text-foreground">
+              "Alexa, open fit track" … "Link my account with code <span className="text-primary">{code ?? "······"}</span>"
+            </p>
+
+            {code ? (
+              <div className="bg-muted rounded-xl p-4 text-center">
+                <p className="text-3xl font-bold tracking-[0.4em] text-foreground">{code}</p>
+                <p className="text-xs text-muted-foreground mt-2">Expires in {expiresIn} minutes · single use</p>
+              </div>
+            ) : null}
+
+            {error && <p className="text-sm text-destructive">{error}</p>}
+
+            <button
+              onClick={generateCode}
+              disabled={generating}
+              className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-60"
+            >
+              {generating ? "Generating…" : code ? "Generate a new code" : "Generate link code"}
+            </button>
+            <p className="text-xs text-muted-foreground">
+              After linking, tap the refresh icon above — the status updates once Alexa confirms.
+            </p>
+          </div>
+        )}
 
         {/* Voice commands */}
         <div className="bg-muted rounded-xl p-4 mb-4 space-y-3">
@@ -55,24 +121,12 @@ const AlexaModal = ({ open, onClose }: Props) => {
           ))}
         </div>
 
-        {!alexaConnected ? (
-          <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Your FitTrack Alexa skill is already set up on your account. Just enable it below.
-            </p>
-            <button
-              onClick={() => { connectAlexa(); onClose(); }}
-              className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity"
-            >
-              Mark as Connected
-            </button>
-          </div>
-        ) : (
+        {alexaConnected && (
           <button
-            onClick={() => { disconnectAlexa(); onClose(); }}
+            onClick={handleUnlink}
             className="w-full py-2.5 rounded-xl border border-destructive text-destructive text-sm font-medium hover:bg-destructive/10 transition-colors"
           >
-            Disconnect Alexa
+            Unlink all Alexa devices
           </button>
         )}
       </div>

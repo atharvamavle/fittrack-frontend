@@ -11,15 +11,11 @@ const COLORS = [
   "hsl(45 100% 55%)",
 ];
 
-function melbourneToday(): string {
-  return new Date().toLocaleDateString("en-CA", { timeZone: "Australia/Melbourne" });
-}
-
 function weekStart(): string {
   const d = new Date();
   const day = d.getDay(); // 0=Sun
   d.setDate(d.getDate() - day);
-  return d.toLocaleDateString("en-CA", { timeZone: "Australia/Melbourne" });
+  return d.toLocaleDateString("en-CA");
 }
 
 const ProgressChart = () => {

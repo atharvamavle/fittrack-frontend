@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 
-function melbourneToday(): string {
-  return new Date().toLocaleDateString("en-CA", { timeZone: "Australia/Melbourne" });
-}
+import { localToday } from "@/lib/fitness";
 
 function macroPercents(meal: any) {
   const c = meal.carbs_g   || 0;
@@ -31,7 +29,7 @@ const DietMenu = () => {
   useEffect(() => {
     api.getMeals()
       .then((data) => {
-        const today = melbourneToday();
+        const today = localToday();
         setMeals((data || []).filter((m: any) => m.date === today));
       })
       .catch(console.error)

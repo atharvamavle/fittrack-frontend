@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Copy, Check, Loader2, LogOut } from "lucide-react";
-import { goalLabels, activityLabels } from "@/lib/fitness";
+import { goalLabels, activityLabels, detectedTimezone } from "@/lib/fitness";
 
 type Tab = "profile" | "body" | "goals" | "account";
 
@@ -39,6 +39,7 @@ const Settings = () => {
   const [gender, setGender] = useState("");
   const [goal, setGoal] = useState("");
   const [activityLevel, setActivityLevel] = useState("");
+  const [timezone, setTimezone] = useState("");
 
   const loadProfile = () => {
     setLoading(true);
@@ -52,6 +53,7 @@ const Settings = () => {
         setGender(data?.gender ?? "other");
         setGoal(data?.goal ?? "stay_fit");
         setActivityLevel(data?.activity_level ?? "moderate");
+        setTimezone(data?.timezone ?? detectedTimezone());
       })
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -70,6 +72,7 @@ const Settings = () => {
         gender,
         goal,
         activity_level: activityLevel,
+        timezone: timezone || detectedTimezone(),
       });
       setProfile((p: any) => ({
         ...p, name,
@@ -151,6 +154,14 @@ const Settings = () => {
               <Row label="Your photo" desc="Generated automatically from your name.">
                 <div className="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center text-lg font-bold flex-shrink-0">
                   {initials}
+                </div>
+              </Row>
+              <Row label="Timezone" desc="Daily summaries and Alexa logs use this to decide what 'today' means.">
+                <div className="flex items-center gap-2 max-w-sm w-full">
+                  <Input value={timezone} onChange={(e) => setTimezone(e.target.value)} placeholder="e.g. Australia/Melbourne" />
+                  <Button type="button" variant="outline" size="sm" onClick={() => setTimezone(detectedTimezone())} className="flex-shrink-0">
+                    Detect
+                  </Button>
                 </div>
               </Row>
             </div>

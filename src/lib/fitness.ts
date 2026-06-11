@@ -1,20 +1,33 @@
 // Shared fitness utilities used across components
 
-export function melbourneToday(): string {
-  return new Date().toLocaleDateString("en-CA", { timeZone: "Australia/Melbourne" });
+/** Today's date (YYYY-MM-DD) in the *user's* timezone — not hardcoded to
+ * Melbourne, so the app works for any user anywhere. */
+export function localToday(): string {
+  return new Date().toLocaleDateString("en-CA");
 }
+
+/** Detected IANA timezone of this browser, e.g. "Australia/Melbourne". */
+export function detectedTimezone(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || "Australia/Melbourne";
+  } catch {
+    return "Australia/Melbourne";
+  }
+}
+
+// Deprecated alias — use localToday()
+export const melbourneToday = localToday;
 
 export function monthStart(): string {
   const d = new Date();
-  return new Date(d.getFullYear(), d.getMonth(), 1)
-    .toLocaleDateString("en-CA", { timeZone: "Australia/Melbourne" });
+  return new Date(d.getFullYear(), d.getMonth(), 1).toLocaleDateString("en-CA");
 }
 
 export function lastNDays(n: number): string[] {
   return Array.from({ length: n }, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - (n - 1 - i));
-    return d.toLocaleDateString("en-CA", { timeZone: "Australia/Melbourne" });
+    return d.toLocaleDateString("en-CA");
   });
 }
 

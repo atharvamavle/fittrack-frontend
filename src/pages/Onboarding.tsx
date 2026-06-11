@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { Activity, Loader2, ChevronRight } from "lucide-react";
+import { detectedTimezone } from "@/lib/fitness";
 
 const goals = [
   { value: "lose_weight",    label: "Lose Weight",     emoji: "🔥" },
@@ -47,6 +48,7 @@ const Onboarding = () => {
         gender,
         goal,
         activity_level: activityLevel,
+        timezone: detectedTimezone(),
       });
       navigate("/");
     } catch (e: any) {

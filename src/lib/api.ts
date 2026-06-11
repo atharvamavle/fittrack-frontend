@@ -43,7 +43,7 @@ async function del(path: string) {
   return res.json();
 }
 
-import { melbourneToday } from "@/lib/fitness";
+import { localToday } from "@/lib/fitness";
 
 export const api = {
   // ── Meals ──────────────────────────────────────────────────────
@@ -58,7 +58,7 @@ export const api = {
     protein_g?: number;
     carbs_g?: number;
     fat_g?: number;
-  }) => post("/meals", { ...data, date: melbourneToday() }),
+  }) => post("/meals", { ...data, date: localToday() }),
 
   searchFood: (query: string) => get(`/meals/search?query=${encodeURIComponent(query)}`),
 
@@ -70,13 +70,13 @@ export const api = {
     duration_minutes: number;
     intensity: number;
     source?: string;
-  }) => post("/workouts", { ...data, date: melbourneToday() }),
+  }) => post("/workouts", { ...data, date: localToday() }),
 
   deleteWorkout: (id: number) => del(`/workouts/${id}`),
 
   // ── Summary ─────────────────────────────────────────────────────
   getSummary: (date?: string) =>
-    get(`/summary${date ? `?date=${date}` : `?date=${melbourneToday()}`}`),
+    get(`/summary${date ? `?date=${date}` : `?date=${localToday()}`}`),
 
   // ── Chat ────────────────────────────────────────────────────────
   sendMessage: (message: string) => post("/chat", { message }),
@@ -92,5 +92,14 @@ export const api = {
     gender?: string;
     goal?: string;
     activity_level?: string;
+    timezone?: string;
   }) => post("/users/profile", data),
+
+  // ── Alexa device linking ────────────────────────────────────────
+  /** Generate a short-lived 6-digit code to speak to Alexa. */
+  getAlexaLinkCode: () => post("/users/alexa-code", {}),
+  /** Whether this account has any Alexa devices linked. */
+  getAlexaLinkStatus: () => get("/users/alexa-link"),
+  /** Unlink all Alexa devices from this account. */
+  unlinkAlexa: () => del("/users/alexa-link"),
 };
